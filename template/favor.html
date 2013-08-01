@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}
+    <title>Favorites</title>
+{% endblock title%}
+{% block css_file%}
+<style type="text/css">
+  .row-fluid{
+    padding-top: 60px;
+  }
+  .span3{
+    padding-right:1%;
+  }
+  .well{
+    height: 490px;
+  }
+  #tooltipdiv {
+   position: absolute;
+   background: #7B7B7B;
+   padding: 3px 3px 3px 3px;
+   color: #FFFFFF;
+   display: none;
+  }
+</style>
+<link rel="stylesheet" href="site_media/css/not.the.skin.css">
+<link rel="stylesheet" href="site_media/circle.skin/circle.player.css">
+{% endblock css_file%}
+{% block js_file%}
+<script type="text/javascript" src="site_media/js/jquery.transform2d.js"></script>
+<script type="text/javascript" src="site_media/js/jquery.grab.js"></script>
+<script type="text/javascript" src="site_media/js/jquery.jplayer.js"></script>
+<script type="text/javascript" src="site_media/js/mod.csstransforms.min.js"></script>
+<script type="text/javascript" src="site_media/js/circle.player.js"></script>
+<script type="text/javascript" src="site_media/js/musicPush/favListAppender.js"></script>
+{% endblock js_file%}
+
+{%block content%}
+<div class="navbar navbar-inverse navbar-fixed-top" style="position:absolute;">
+  <div class="navbar-inner">
+    <div class="container-fluid">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="home">Music Push</a>
+      <div class="nav-collapse collapse">
+        <p class="navbar-text pull-right" id="user_name">
+          Welcome, {{user.username}}
+        </p>
+        <ul class="nav">
+          <li><a href="home">My Radio</a></li>
+          <li class="active"><a href="favList">Favorite</a></li>
+          <li><a href="hotList">Hot List</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row-fluid">
+      <div class="span3">
+        <div class="well sidebar-nav">
+          <ul class="nav nav-list" id="my-list">
+            <li class="nav-header">My Favorites</li>
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <div>
+            <input type="image" class="rotate" id="btn-love" src='site_media/img/love.png'/>
+            <input type="image" class="rotate" id="btn-hate" src='site_media/img/hate.png' style="float:right;"/>
+          </div>
+          <!-- <image class="rotate" id="thisCover" src='site_media/img/cover.png'/> -->
+          <div style="padding-left: 22%;">
+            <div id="jquery_jplayer_1" class="cp-jplayer"></div>
+            <div class="prototype-wrapper">
+              <div id="cp_container_1" class="cp-container">
+                <div class="cp-buffer-holder"> <!-- .cp-gt50 only needed when buffer is > than 50% -->
+                  <div class="cp-buffer-1"></div>
+                  <div class="cp-buffer-2"></div>
+                </div>
+                <div class="cp-progress-holder"> <!-- .cp-gt50 only needed when progress is > than 50% -->
+                  <div class="cp-progress-1"></div>
+                  <div class="cp-progress-2"></div>
+                </div>
+                <div class="cp-circle-control"></div>
+                <ul class="cp-controls">
+                  <li><a id="btn-play" class="cp-play" tabindex="1">play</a></li>
+                  <li><a id="btn-pause" class="cp-pause" style="display:none;" tabindex="1">pause</a></li> <!-- Needs the inline style here, or jQuery.show() uses display:inline instead of display:block -->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div>
+            <input type="image" class="rotate" id="btn-cycle" src='site_media/img/cycle.png'/>
+            <input type="image" class="rotate" id="btn-skip" src='site_media/img/skip.png'  style="float:right;"/>
+          </div>
+        </div>
+        <div>
+          <div align="center" style="height:60px;">
+            <h5 id="title"></h4>
+            <p id="artist"></p>
+            <!-- <img id="cover" src=""></img> -->
+          </div>
+          <HR style="FILTER: progid:DXImageTransform.Microsoft.Glow(color=#987cb9,strength=10)" color=#E0E0E0 SIZE=3>
+          <div align="center">
+            <img src="site_media/img/align.png"/>
+            <input type="text" id="container"/>
+            <input type="image" src="site_media/img/search.png" id="search"/>
+            <a style="float:right;" href="logout">
+              <img id="exit" src="site_media/img/logout.png"/>
+            </a>
+          </div>
+        </div>
+      </div>
+
+  </div>
+  <label id="track_id" style="display:none;"></label>
+</div>
+
+{%endblock content%}

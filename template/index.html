@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% block title %}
+<title>Music Push</title>
+{% endblock title%}
+{% block css_file%}
+<link rel="stylesheet" href="site_media/css/not.the.skin.css">
+<link rel="stylesheet" href="site_media/circle.skin/circle.player.css">
+{% endblock css_file%}
+{% block js_file%}
+<script type="text/javascript" src="site_media/js/jquery.transform2d.js"></script>
+<script type="text/javascript" src="site_media/js/jquery.grab.js"></script>
+<script type="text/javascript" src="site_media/js/jquery.jplayer.js"></script>
+<script type="text/javascript" src="site_media/js/mod.csstransforms.min.js"></script>
+<script type="text/javascript" src="site_media/js/circle.player.js"></script>
+<script type="text/javascript" src="site_media/js/musicPush/btn-event.js"></script>
+<script type="text/javascript">
+
+      var current_url;
+
+      function playTrack(data){
+        current_url = data;
+        $("#jquery_jplayer_1").jPlayer("destroy");
+        var myCirclePlayer = new CirclePlayer("#jquery_jplayer_1",
+          {
+            m4a:data
+          },
+          {
+          cssSelectorAncestor: "#cp_container_1",
+          canplay: function() {
+            $("#jquery_jplayer_1").jPlayer("play");
+          },
+          ended: function(){
+            recommendPlay();
+          }
+
+        });
+        clearInterval(rotation);
+        rotation = setInterval("EnableRotate()",60);
+      }
+
+      function recommendPlay(){
+        if ( cycle_or_not ){
+          playTrack(current_url);
+        }
+        else{
+          resetCycle();
+          var track_url;
+          var artist;
+          var title;
+          var curTitle = $("#title").text();
+          var curArtist = $("#artist").text();
+          $.ajax({
+            url:'getRecommendation?curTitle=' + curTitle + '&curArtist=' + curArtist,
+            data:'',
+            success:function(data){
+              if (data != 0){
+                track_url = data.split('|')[0];
+                artist = data.split('|')[1];
+                title = data.split('|')[2];
+                var love_or_not;
+                love_or_not = data.split('||')[1];
+                if (love_or_not == '1') setLoveLight();
+                else offLoveLight();
+                $("#artist").text(artist);
+                $("#title").text(title);
+                track_id = data.split('|')[3];
+                $("#track_id").text(track_id);
+                playTrack(track_url);
+              }
+              else{
+                autoPlay();
+              }
+            }
+          }).done(function(){});
+        }
+        
+      };
+
+      function autoPlay(){
+        $("#jquery_jplayer_1").jPlayer("destroy");
+        $("#artist").text('');
+        $("#title").text('');      
+        var track_url;
+        var artist;
+        var title;
+        $.ajax({
+          url:'getTrack',
+          data:'',
+          success:function(data){
+            if (data != 0){
+              track_url = data.split('|')[0];
+              artist = data.split('|')[1];
+              title = data.split('|')[2];
+              var love_or_not;
+              love_or_not = data.split('||')[1];
+              if (love_or_not == '1') setLoveLight();
+              else offLoveLight();
+              playTrack(track_url);
+              $("#artist").text(artist);
+              $("#title").text(title);
+              track_id = data.split('|')[3];
+              $("#track_id").text(track_id);
+            }
+            else{
+              autoPlay();
+            }
+          }
+        }).done(function(){});
+      }
+
+      function searchTrack(){
+        $("#search").click(function(){
+          var query = $("#container").val();
+          if(query == "")
+            alert("No query has been input!");
+          else{
+            resetCycle();
+            var track_url;
+            var artist;
+            var title;
+            // var coverImg;
+            $.ajax({
+              url: "searchTrack?query=" + query,
+              data:"",
+              success:function(data){
+                track_url = data.split('|')[0];
+                artist = data.split('|')[1];
+                title = data.split('|')[2];
+                track_id = data.split('|')[3];
+                var love_or_not;
+                love_or_not = data.split('||')[1];
+                if (love_or_not == '1') setLoveLight();
+                else offLoveLight();  
+                $("#track_id").text(track_id);
+              }
+            }).done(function(){
+              if(track_url == 0)
+                alert("No results for your query!")
+              else{
+                playTrack(track_url);
+                $("#artist").text(artist);
+                $("#title").text(title);
+              }
+            });
+          }
+
+        });
+      }
+
+      jQuery(document).ready(function($) {
+        searchTrack();
+        autoPlay();
+      });
+
+</script>
+{% endblock js_file%}
+{%block content%}
+    <div class="navbar navbar-inverse navbar-fixed-top" style="position:absolute;">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="home">Music Push</a>
+          <div class="nav-collapse collapse">
+            <p class="navbar-text pull-right" id="user_name">
+              Welcome, {{user.username}}
+            </p>
+            <ul class="nav">
+              <li class="active"><a href="home">My Radio</a></li>
+              <li><a href="favList">Favorite</a></li>
+              <li><a href="hotList">Hot List</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+        <div style="padding-top:7%;">
+          <div>
+            <input type="image" class="rotate" id="btn-love" src='site_media/img/love.png'/>
+            <input type="image" class="rotate" id="btn-hate" src='site_media/img/hate.png' style="float:right;"/>
+          </div>
+          <!-- <image class="rotate" id="thisCover" src='site_media/img/cover.png'/> -->
+          <div>
+            <div id="jquery_jplayer_1" class="cp-jplayer"></div>
+            <div class="prototype-wrapper">
+              <div id="cp_container_1" class="cp-container">
+                <div class="cp-buffer-holder"> <!-- .cp-gt50 only needed when buffer is > than 50% -->
+                  <div class="cp-buffer-1"></div>
+                  <div class="cp-buffer-2"></div>
+                </div>
+                <div class="cp-progress-holder"> <!-- .cp-gt50 only needed when progress is > than 50% -->
+                  <div class="cp-progress-1"></div>
+                  <div class="cp-progress-2"></div>
+                </div>
+                <div class="cp-circle-control"></div>
+                <ul class="cp-controls">
+                  <li><a id="btn-play" class="cp-play" tabindex="1">play</a></li>
+                  <li><a id="btn-pause" class="cp-pause" style="display:none;" tabindex="1">pause</a></li> <!-- Needs the inline style here, or jQuery.show() uses display:inline instead of display:block -->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div>
+            <input type="image" class="rotate" id="btn-cycle" src='site_media/img/cycle.png'/>
+            <input type="image" class="rotate" id="btn-skip" src='site_media/img/skip.png'  style="float:right;"/>
+          </div>
+        </div>
+
+        <div>
+          <div align="center" style="height:60px;">
+            <h5 id="title">Recommend</h4>
+            <p id="artist">for you</p>
+            <!-- <img id="cover" src=""></img> -->
+          </div>
+          <HR style="FILTER: progid:DXImageTransform.Microsoft.Glow(color=#987cb9,strength=10)" color=#E0E0E0 SIZE=3>
+          <div align="center">
+            <img src="site_media/img/align.png"/>
+            <input type="text" id="container"/>
+            <input type="image" src="site_media/img/search.png" id="search"/>
+            <a style="float:right;" href="logout">
+              <img id="exit" src="site_media/img/logout.png"/>
+            </a>
+          </div>
+        </div>
+        
+    </div>
+    <label id="track_id" style="display:none;"></label>
+{%endblock content%}

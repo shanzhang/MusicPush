@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}
+    <title>Register</title>
+{% endblock title%}
+{% block js_file%}
+<script type="text/javascript">
+
+  jQuery(document).ready(function($) {
+
+    $("#password0").attr("disabled",true);
+
+    $("#username").blur(function(){
+      if($(this).val() != "")
+        $("#imgUsername").attr("src","site_media/img/verified.png");
+      else
+        $("#imgUsername").attr("src","site_media/img/must.png");
+    });
+
+    $("#password").blur(function(){
+      if($(this).val() != "")
+      {
+        $("#imgPass").attr("src","site_media/img/verified.png");
+        $("#password0").attr("disabled",false);
+      }
+      else{
+        $("#imgPass").attr("src","site_media/img/must.png");
+        $("#password0").attr("disabled",true);
+      }
+    });
+
+    $("#password0").blur(function(){
+      if($(this).val() == $("#password").val() && $(this).val() != "")
+        $("#imgPass0").attr("src","site_media/img/verified.png");
+      else
+        $("#imgPass0").attr("src","site_media/img/must.png");
+    });
+
+    $("#email").blur(function(){
+      if($(this).val() != "")
+        $("#imgEmail").attr("src","site_media/img/verified.png");
+      else
+        $("#imgEmail").attr("src","site_media/img/must.png");
+    });
+
+    $("#submit").click(function(){
+
+      var username = $("#username").val();
+      var password = $("#password").val();
+      var password0 = $("#password0").val();
+      var email = $("#email").val();
+      var fname = $("#fname").val();
+      var lname = $("#lname").val();
+
+      if(checkVerified()){          
+        $.ajax({
+          // type:"POST",
+          url: "createUser?username="+username+"&password="+password+"&email="+email+"&fname="+fname+"&lname="+lname,
+          data:"",
+          success:function(data){
+          }
+        });
+        redirectPage();
+      }
+      else{
+        alert("Please check your personal information!");
+      }
+    });
+
+    function redirectPage(){
+      $("#registerForm").empty();
+      $("#registerForm").append("<h3>Register Accomplished</h3><h4>Redirect to Home Page... Please wait a few seconds...</h4>");
+      setTimeout(returnToHome,1000);
+      
+    }
+
+    function checkVerified(){
+      var verified = true;
+      if($("#username").val() == "") verified = false;
+      if($("#password").val() == "") verified = false;
+      if($("#password0").val() == "") verified = false;
+      if($("#password").val() != $("#password0").val()) verified = false;
+      if($("#email").val() == "") verified = false;
+      return verified;
+    }
+
+    function returnToHome(){
+      window.location.replace("home");
+    }
+
+  });
+</script>
+{% endblock js_file%}
+{%block content%}
+<div class="navbar navbar-inverse navbar-fixed-top" style="position:absolute;">
+  <div class="navbar-inner">
+    <div class="container-fluid">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="home">Music Push</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="active"><a href="home">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+
+    <div id="registerForm" style="padding-left:35%;padding-top:5%;padding-bottom:4%">
+      <h3>Register On Music Push</h3>
+      <div>
+        <label>Username</label>
+        <input type="text" id="username"/><image id="imgUsername" src=""/>
+        <label>Password</label>
+        <input type="password" id="password"/><image id="imgPass" src=""/>
+        <label>Confrim Password</label>
+        <input type="password" id="password0"/><image id="imgPass0" src=""/>
+        <label>Email</label>
+        <input type="text" id="email"/><image id="imgEmail" src=""/>
+        <label>First Name</label>
+        <input type="text" id="fname"/>
+        <label>Last Name</label>
+        <input type="text" id="lname"/>
+        <p><button class="btn" id="submit">Submit &raquo;</button></p>
+      </div>
+    </div>
+          
+</div>
+{%endblock content%}
